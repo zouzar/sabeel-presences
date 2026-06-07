@@ -316,19 +316,41 @@ function addPerson() {
     setStatus('Enregistrement...', 'loading');
   }
 
+  // Verif doublon cote client
+  var doublons = [];
+  dates.forEach(function(d) {
+    var existe = people.some(function(p) {
+      return p.name.toLowerCase() === name.toLowerCase() && p.date === d;
+    });
+    if (existe) doublons.push(d);
+  });
+  var datesAjouter = dates.filter(function(d) {
+    return !people.some(function(p) {
+      return p.name.toLowerCase() === name.toLowerCase() && p.date === d;
+    });
+  });
+  if (datesAjouter.length === 0) {
+    loading = false;
+    setStatus(name + ' deja enregistre sur ces jours', 'error');
+    return;
+  }
+  if (doublons.length > 0) {
+    setStatus(doublons.length + ' jour(s) ignore(s) - doublon', 'info');
+  }
+
   var i = 0;
   function postNext() {
-    if (i >= dates.length) {
+    if (i >= datesAjouter.length) {
       loading = false;
       document.getElementById('inputName').value = '';
       document.getElementById('inputCreneau').value = '';
       document.getElementById('tousLesjours').checked = false;
       document.getElementById('inputName').focus();
-      setStatus('Ajoute sur ' + dates.length + ' jour(s)', 'success');
+      setStatus('Ajoute sur ' + datesAjouter.length + ' jour(s)', 'success');
       setTimeout(loadFromSheet, 1500);
       return;
     }
-    payload.date = dates[i];
+    payload.date = datesAjouter[i];
     sheetPost(payload, function() { i++; postNext(); });
   }
   postNext();
