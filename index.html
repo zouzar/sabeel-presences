@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi Presence Sabeel</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C8963A;
+  --gold-light: #E8B96A;
+  --gold-dim: #8B6520;
+  --deep: #0F1A12;
+  --surface: #162018;
+  --card: #1C2B1E;
+  --border: #2A3D2C;
+  --text: #EDE8DC;
+  --muted: #8A9E8C;
+  --present: #4CAF7D;
+  --masjid: #5B8FB9;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--deep);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(200,150,58,0.08) 0%, transparent 60%);
+}
+header { text-align: center; padding: 40px 24px 24px; }
+.ornament { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 10px; }
+.ornament::before, .ornament::after { content: ''; flex: 1; max-width: 100px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dim)); }
+.ornament::after { background: linear-gradient(90deg, var(--gold-dim), transparent); }
+h1 { font-family: 'Amiri', serif; font-size: 36px; color: var(--gold); }
+.subtitle { color: var(--muted); font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 4px; }
+.event-banner {
+  background: var(--card); border: 1px solid var(--border); border-top: 2px solid var(--gold-dim);
+  max-width: 700px; margin: 0 auto 28px; border-radius: 8px; padding: 16px 24px;
+  display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+}
+.event-banner label { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+.event-banner select {
+  background: var(--surface); border: 1px solid var(--border); color: var(--text);
+  padding: 8px 12px; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none;
+}
+.event-title { font-family: 'Amiri', serif; font-size: 20px; color: var(--gold); }
+main { max-width: 900px; margin: 0 auto; padding: 0 16px 80px; }
+.summary { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.summary-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px 16px; font-size: 12px; color: var(--muted); }
+.summary-card strong { display: block; font-size: 20px; font-weight: 600; color: var(--text); }
+.add-form {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 20px; margin-bottom: 24px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end;
+}
+@media (max-width: 600px) { .add-form { grid-template-columns: 1fr 1fr; } .btn-add { grid-column: 1/-1; } }
+.form-group label { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 5px; }
+.form-group input, .form-group select {
+  width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text);
+  padding: 9px 12px; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--gold); }
+.btn-add {
+  background: var(--gold); color: var(--deep); border: none; padding: 9px 20px;
+  border-radius: 4px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer;
+}
+.btn-add:hover { background: var(--gold-light); }
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.section-title { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+.btn-sm { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btn-sm:hover { border-color: var(--gold-dim); color: var(--gold); }
+.btn-danger:hover { border-color: #c77; color: #c77; }
+.table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; min-width: 540px; }
+thead tr { background: var(--surface); border-bottom: 2px solid var(--gold-dim); }
+th { padding: 12px 14px; text-align: left; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+th.center { text-align: center; }
+tbody tr { border-bottom: 1px solid var(--border); }
+tbody tr:hover { background: rgba(200,150,58,0.04); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 11px 14px; font-size: 14px; }
+.name-cell { font-weight: 500; }
+.lieu-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.lieu-masjid { background: rgba(91,143,185,0.15); color: var(--masjid); border: 1px solid rgba(91,143,185,0.3); }
+.lieu-markaz { background: rgba(200,150,58,0.12); color: var(--gold); border: 1px solid rgba(200,150,58,0.25); }
+.slots-cell { display: flex; gap: 5px; justify-content: center; }
+.slot-btn {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border);
+  background: var(--surface); cursor: pointer; font-size: 10px; font-weight: 600;
+  color: var(--muted); transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+}
+.slot-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+.slot-btn.active { background: var(--present); border-color: var(--present); color: #fff; }
+.slot-btn.active[data-slot="service"] { background: var(--gold); border-color: var(--gold); color: var(--deep); }
+.delete-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 4px 8px; border-radius: 4px; }
+.delete-btn:hover { color: #E57373; background: rgba(229,115,115,0.1); }
+.empty { text-align: center; padding: 50px 24px; color: var(--muted); font-size: 14px; }
+.empty .icon { font-size: 32px; margin-bottom: 10px; opacity: 0.5; }
+#statusBar {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  padding: 10px 22px; border-radius: 20px; font-size: 13px; z-index: 999;
+  transition: opacity 0.4s; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  display: none; color: #EDE8DC;
+}
+.slot-col-labels { display: flex; gap: 5px; }
+.slot-col-label { width: 34px; text-align: center; font-size: 9px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="ornament"><span style="color:var(--gold)">&#10022;</span></div>
+  <h1>Suivi Presence Sabeel</h1>
+</header>
+
+<div style="max-width:900px;margin:0 auto;padding:0 16px;">
+  <div class="event-banner">
+    <div>
+      <label>Evenement</label>
+      <div class="event-title">Ashara Mubaraka 1447H</div>
+    </div>
+    <div>
+      <label>Date du jour</label>
+      <select id="eventDate">
+        <option value="17 juin (Mar)">Mardi 17 juin</option>
+        <option value="18 juin (Mer)">Mercredi 18 juin</option>
+        <option value="19 juin (Jeu)">Jeudi 19 juin</option>
+        <option value="20 juin (Ven)">Vendredi 20 juin</option>
+        <option value="21 juin (Sam)">Samedi 21 juin</option>
+        <option value="22 juin (Dim)">Dimanche 22 juin</option>
+        <option value="23 juin (Lun)">Lundi 23 juin</option>
+        <option value="24 juin (Mar)">Mardi 24 juin</option>
+        <option value="25 juin (Mer)">Mercredi 25 juin</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="summary">
+    <div class="summary-card"><strong id="totalCount">0</strong>Personnes</div>
+    <div class="summary-card"><strong id="masjidCount">0</strong>Masjid</div>
+    <div class="summary-card"><strong id="markazCount">0</strong>Markaz</div>
+    <div class="summary-card"><strong id="premiereCount">0</strong>1ere heure</div>
+    <div class="summary-card"><strong id="neufhCount">0</strong>9h00</div>
+    <div class="summary-card"><strong id="soirCount">0</strong>Soir</div>
+  </div>
+
+  <div class="add-form">
+    <div class="form-group">
+      <label>Nom</label>
+      <input type="text" id="inputName" placeholder="Prenom Nom" onkeydown="if(event.key==='Enter') addPerson()">
+    </div>
+    <div class="form-group">
+      <label>Lieu</label>
+      <select id="inputLieu">
+        <option value="masjid">Masjid</option>
+        <option value="markaz">Markaz</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Creneau</label>
+      <select id="inputCreneau">
+        <option value="">-- Selectionner --</option>
+        <option value="premiere">1ere heure</option>
+        <option value="neufh">9h00</option>
+        <option value="soir">Soir</option>
+      </select>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;align-self:end">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;">
+        <input type="checkbox" id="tousLesjours" style="accent-color:var(--gold);width:14px;height:14px;">
+        Repeter tous les jours
+      </label>
+      <button class="btn-add" onclick="addPerson()">+ Ajouter</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <span class="section-title">Liste des presents</span>
+    <div style="display:flex;gap:8px">
+      <button class="btn-sm" onclick="loadFromSheet()">Actualiser</button>
+      <button class="btn-sm" onclick="exportCSV()">Exporter CSV</button>
+      <button class="btn-sm btn-danger" onclick="clearAll()">Effacer tout</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nom</th>
+          <th>Lieu</th>
+          <th class="center">
+            <div class="slot-col-labels">
+              <div class="slot-col-label">1ere</div>
+              <div class="slot-col-label">9h</div>
+              <div class="slot-col-label">Soir</div>
+            </div>
+          </th>
+          <th>Note</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="6"><div class="empty"><div class="icon">&#128332;</div><div>Chargement...</div></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<div id="statusBar"></div>
+
+<script>
+var SHEET_URL = "https://script.google.com/macros/s/AKfycbxQODjametTuifiwJTYp6CwGZh4eRRXcSj_U4cM8m9vA6pa234CroYxfe-l0PJdhz8Ppg/exec";
+var SLOTS = ['premiere', 'neufh', 'soir'];
+var SLOT_LABELS = { premiere: '1ere', neufh: '9h', soir: 'Soir' };
+var people = [];
+var loading = false;
+var statusTimer = null;
+
+function setStatus(msg, type) {
+  var bar = document.getElementById('statusBar');
+  var bg = { info: '#1C2B1E', success: '#2D5A3D', error: '#5A2D2D', loading: '#2B3A1C' };
+  var border = { info: '#C8963A', success: '#4CAF7D', error: '#E57373', loading: '#C8963A' };
+  bar.style.background = bg[type] || bg.info;
+  bar.style.border = '1px solid ' + (border[type] || border.info);
+  bar.style.display = 'block';
+  bar.style.opacity = '1';
+  bar.textContent = msg;
+  clearTimeout(statusTimer);
+  if (type !== 'loading') {
+    statusTimer = setTimeout(function() { bar.style.opacity = '0'; }, 2500);
+  }
+}
+
+function getDate() {
+  return document.getElementById('eventDate').value;
+}
+
+function loadFromSheet() {
+  setStatus('Chargement...', 'loading');
+  var cbName = 'cb' + Date.now();
+  var s = document.createElement('script');
+  window[cbName] = function(data) {
+    delete window[cbName];
+    if (s.parentNode) s.parentNode.removeChild(s);
+    if (!Array.isArray(data)) { setStatus('Erreur de chargement', 'error'); return; }
+    people = data.filter(function(r) { return r['Nom']; }).map(function(r, i) {
+      return {
+        id: i,
+        name: r['Nom'] || '',
+        lieu: (r['Lieu'] || '').toLowerCase(),
+        slots: {
+          premiere: (r['1ere heure'] === 'O' || r['1ère heure'] === 'O' || r['1ERE HEURE'] === 'O'),
+          neufh:    r['9h00'] === 'O',
+          soir:     r['Soir'] === 'O',
+        },
+        note: r['Note'] || ''
+      };
+    });
+    render();
+    setStatus('OK - ' + people.length + ' personne(s)', 'success');
+  };
+  s.onerror = function() {
+    delete window[cbName];
+    if (s.parentNode) s.parentNode.removeChild(s);
+    setStatus('Erreur reseau', 'error');
+  };
+  s.src = SHEET_URL + '?callback=' + cbName + '&date=' + encodeURIComponent(getDate());
+  document.head.appendChild(s);
+}
+
+function sheetPost(payload, cb) {
+  fetch(SHEET_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  }).then(function() { if (cb) cb(); }).catch(function() { if (cb) cb(); });
+}
+
+var ALL_DATES = [
+  '17 juin (Mar)','18 juin (Mer)','19 juin (Jeu)','20 juin (Ven)',
+  '21 juin (Sam)','22 juin (Dim)','23 juin (Lun)','24 juin (Mar)','25 juin (Mer)'
+];
+
+function addPerson() {
+  var name = document.getElementById('inputName').value.trim();
+  var lieu = document.getElementById('inputLieu').value;
+  var creneau = document.getElementById('inputCreneau').value;
+  var tousJours = document.getElementById('tousLesjours').checked;
+  if (!name) { document.getElementById('inputName').focus(); return; }
+  if (loading) return;
+  if (!tousJours && getDate() === 'tous') { setStatus('Selectionnez un jour specifique', 'error'); return; }
+  loading = true;
+
+  var dates = tousJours ? ALL_DATES : [getDate()];
+  var payload = {
+    action: 'add',
+    nom: name,
+    lieu: lieu === 'masjid' ? 'Masjid' : 'Markaz',
+    premiere: creneau === 'premiere' ? 'O' : '',
+    neufh:    creneau === 'neufh'    ? 'O' : '',
+    soir:     creneau === 'soir'     ? 'O' : '',
+    note: ''
+  };
+
+  if (tousJours) {
+    setStatus('Ajout sur ' + dates.length + ' jours...', 'loading');
+  } else {
+    setStatus('Enregistrement...', 'loading');
+  }
+
+  // Verif doublon cote client
+  var currentDate = getDate();
+  var doublons = [];
+  dates.forEach(function(d) {
+    var existe = people.some(function(p) {
+      var pDate = p.date || currentDate;
+      return p.name.trim().toLowerCase() === name.trim().toLowerCase() && pDate === d;
+    });
+    if (existe) doublons.push(d);
+  });
+  var datesAjouter = dates.filter(function(d) {
+    return !people.some(function(p) {
+      var pDate = p.date || currentDate;
+      return p.name.trim().toLowerCase() === name.trim().toLowerCase() && pDate === d;
+    });
+  });
+  if (datesAjouter.length === 0) {
+    loading = false;
+    setStatus(name + ' deja enregistre sur ces jours', 'error');
+    return;
+  }
+  if (doublons.length > 0) {
+    setStatus(doublons.length + ' jour(s) ignore(s) - doublon', 'info');
+  }
+
+  var i = 0;
+  function postNext() {
+    if (i >= datesAjouter.length) {
+      loading = false;
+      document.getElementById('inputName').value = '';
+      document.getElementById('inputCreneau').value = '';
+      document.getElementById('tousLesjours').checked = false;
+      document.getElementById('inputName').focus();
+      setStatus('Ajoute sur ' + datesAjouter.length + ' jour(s)', 'success');
+      setTimeout(loadFromSheet, 1500);
+      return;
+    }
+    payload.date = datesAjouter[i];
+    sheetPost(payload, function() { i++; postNext(); });
+  }
+  postNext();
+}
+
+function toggleSlot(idx, slot) {
+  var p = people[idx];
+  if (!p || loading) return;
+  loading = true;
+  p.slots[slot] = !p.slots[slot];
+  render();
+  setStatus('Mise a jour...', 'loading');
+  sheetPost({
+    action: 'update',
+    date: getDate(),
+    nom: p.name,
+    premiere: p.slots.premiere ? 'O' : '',
+    neufh:    p.slots.neufh    ? 'O' : '',
+    soir:     p.slots.soir     ? 'O' : '',
+    service:  p.slots.service  ? 'O' : '',
+    note: p.note
+  }, function() {
+    loading = false;
+    setStatus('Mis a jour', 'success');
+  });
+}
+
+var noteTimers = {};
+function updateNote(idx, val) {
+  var p = people[idx];
+  if (!p) return;
+  p.note = val;
+  clearTimeout(noteTimers[idx]);
+  noteTimers[idx] = setTimeout(function() {
+    sheetPost({ action: 'update', date: getDate(), nom: p.name,
+      premiere: p.slots.premiere ? 'O' : '', neufh: p.slots.neufh ? 'O' : '',
+      soir: p.slots.soir ? 'O' : '',
+ note: val }, null);
+  }, 1200);
+}
+
+function deletePerson(idx) {
+  var p = people[idx];
+  if (!p || loading) return;
+  if (!confirm('Supprimer ' + p.name + ' ?')) return;
+  loading = true;
+  setStatus('Suppression...', 'loading');
+  sheetPost({ action: 'delete', date: getDate(), nom: p.name }, function() {
+    loading = false;
+    setTimeout(loadFromSheet, 1500);
+  });
+}
+
+function clearAll() {
+  if (people.length === 0) return;
+  if (!confirm('Effacer toutes les presences de cette date ?')) return;
+  setStatus('Suppression...', 'loading');
+  var i = 0;
+  function next() {
+    if (i >= people.length) { setTimeout(loadFromSheet, 1500); return; }
+    sheetPost({ action: 'delete', date: getDate(), nom: people[i].name }, function() { i++; next(); });
+  }
+  next();
+}
+
+function render() {
+  var tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  if (people.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="icon">&#128332;</div><div>Aucune presence enregistree</div><div style="margin-top:6px;font-size:12px">Ajoutez des noms ci-dessus</div></div></td></tr>';
+    updateSummary(); return;
+  }
+  people.forEach(function(p, i) {
+    var tr = document.createElement('tr');
+    var slotBtns = SLOTS.map(function(s) {
+      return '<button class="slot-btn ' + (p.slots[s] ? 'active' : '') + '" data-slot="' + s + '" onclick="toggleSlot(' + i + ',\'' + s + '\')">' + (p.slots[s] ? '&#10003;' : SLOT_LABELS[s]) + '</button>';
+    }).join('');
+    var lieuClass = p.lieu === 'masjid' ? 'lieu-masjid' : 'lieu-markaz';
+    var lieuLabel = p.lieu === 'masjid' ? 'Masjid' : 'Markaz';
+    tr.innerHTML = '<td style="color:var(--muted);font-size:12px">' + (i+1) + '</td>'
+      + '<td class="name-cell">' + esc(p.name) + '</td>'
+      + '<td><span class="lieu-badge ' + lieuClass + '">' + lieuLabel + '</span></td>'
+      + '<td><div class="slots-cell">' + slotBtns + '</div></td>'
+      + '<td><input type="text" value="' + esc(p.note) + '" placeholder="--" style="background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--muted);font-size:12px;width:90px;outline:none;padding:2px 4px;" oninput="updateNote(' + i + ',this.value)"></td>'
+      + '<td><button class="delete-btn" onclick="deletePerson(' + i + ')">&#10005;</button></td>';
+    tbody.appendChild(tr);
+  });
+  updateSummary();
+}
+
+function updateSummary() {
+  document.getElementById('totalCount').textContent = people.length;
+  document.getElementById('masjidCount').textContent = people.filter(function(p){return p.lieu==='masjid';}).length;
+  document.getElementById('markazCount').textContent = people.filter(function(p){return p.lieu==='markaz';}).length;
+  document.getElementById('premiereCount').textContent = people.filter(function(p){return p.slots.premiere;}).length;
+  document.getElementById('neufhCount').textContent = people.filter(function(p){return p.slots.neufh;}).length;
+  document.getElementById('soirCount').textContent = people.filter(function(p){return p.slots.soir;}).length;
+}
+
+function exportCSV() {
+  var date = getDate();
+  var csv = 'Ashara Mubaraka 1447H - ' + date + '\n\nN,Nom,Lieu,1ere heure,9h00,Soir,Service,Note\n';
+  people.forEach(function(p, i) {
+    csv += (i+1)+',"'+p.name+'",'+(p.lieu==='masjid'?'Masjid':'Markaz')+','+(p.slots.premiere?'O':'')+','+(p.slots.neufh?'O':'')+','+(p.slots.soir?'O':'')+','+(p.slots.service?'O':'')+',"'+p.note+'"\n';
+  });
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'presences_sabeel.csv';
+  a.click();
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('eventDate').addEventListener('change', loadFromSheet);
+loadFromSheet();
+</script>
+</body>
+</html>
